@@ -138,6 +138,30 @@ def test_trash_input():
             wait_for_strings(proc.read, TIMEOUT, 'DIED.')
 
 
+def test_reverse_connection():
+    # Create a server socket to accept the reverse connection
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    with server_socket:
+        server_socket.bind(('127.0.0.1', 0))
+        server_socket.listen(1)
+        host, port = server_socket.getsockname()
+
+        with TestProcess(sys.executable, __file__, 'daemon', 'test_reverse_connection', host, str(port)) as proc:
+            with dump_on_error(proc.read):
+                wait_for_strings(proc.read, TIMEOUT, '{a1}', '{b1}')
+
+                # Accept the connection from the debugger
+                client_socket, addr = server_socket.accept()
+                with client_socket:
+                    # Wrap the client socket with TestSocket for easier interaction
+                    with TestSocket(client_socket) as client:
+                        with dump_on_error(client.read):
+                            wait_for_strings(client.read, TIMEOUT, "-> print('{b2}')")
+                            client.fh.write(b'continue\r\n')
+                            client.fh.flush()
+
+                wait_for_strings(proc.read, TIMEOUT, 'DIED.')
+
 def func_b(**kwargs):
     print('{b1}')
     set_trace(**kwargs)
@@ -173,6 +197,10 @@ if __name__ == '__main__':
     elif test_name == 'test_redirect':
         func_a(patch_stdstreams=True)
         time.sleep(TIMEOUT)
+    elif test_name == 'test_reverse_connection':
+        host = sys.argv[3]
+        port = int(sys.argv[4])
+        func_a(host=host, port=port, reverse=True)
     else:
         raise RuntimeError('Invalid test spec %r.' % test_name)
     logging.info('DIED.')
