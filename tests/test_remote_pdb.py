@@ -139,7 +139,6 @@ def test_trash_input():
 
 
 def test_reverse_connection():
-    # Create a server socket to accept the reverse connection
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     with server_socket:
         server_socket.bind(('127.0.0.1', 0))
@@ -150,10 +149,8 @@ def test_reverse_connection():
             with dump_on_error(proc.read):
                 wait_for_strings(proc.read, TIMEOUT, '{a1}', '{b1}')
 
-                # Accept the connection from the debugger
                 client_socket, addr = server_socket.accept()
                 with client_socket:
-                    # Wrap the client socket with TestSocket for easier interaction
                     with TestSocket(client_socket) as client:
                         with dump_on_error(client.read):
                             wait_for_strings(client.read, TIMEOUT, "-> print('{b2}')")
