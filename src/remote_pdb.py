@@ -122,7 +122,7 @@ class RemotePdb(Pdb):
                 raise
 
 
-def set_trace(host=None, port=None, patch_stdstreams=False, quiet=None, reverse=False):
+def set_trace(host=None, port=None, patch_stdstreams=False, quiet=None, reverse=None):
     """
     Opens a remote PDB on first available port.
     """
@@ -132,5 +132,7 @@ def set_trace(host=None, port=None, patch_stdstreams=False, quiet=None, reverse=
         port = int(os.environ.get('REMOTE_PDB_PORT', '0'))
     if quiet is None:
         quiet = bool(os.environ.get('REMOTE_PDB_QUIET', ''))
+    if reverse is None:
+        reverse = bool(os.environ.get('REMOTE_PDB_REVERSE', ''))
     rdb = RemotePdb(host=host, port=port, patch_stdstreams=patch_stdstreams, quiet=quiet, reverse=reverse)
     rdb.set_trace(frame=sys._getframe().f_back)
