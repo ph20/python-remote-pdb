@@ -107,10 +107,9 @@ Note that newer Ubuntu disabled readline support in socat, so if you get
 Reverse connection
 ==================
 
-install netcat on your system
-determinate your host ip (ip addr or ifconfig)
-run listener on your host ``nc -lvp 8888``
-put to code such string for reverse connection (use `reverse=True` option)
+To use a reverse connection, install netcat on your system, determine your host IP (using ip addr or ifconfig),
+and run a listener on your host, e.g., ``nc -lvp 8888``. To enable a reverse connection in your code, use
+the ``reverse=True`` option as follows:
 
 .. code:: python
 
@@ -160,6 +159,10 @@ To quiet the output, set ``REMOTE_PDB_QUIET=1``, this will prevent
 ``RemotePdb`` from producing any output -- you'll probably want to specify
 ``REMOTE_PDB_PORT`` as well since the randomized port won't be printed.
 
+If you want to use a reverse connection, you can set ``REMOTE_PDB_REVERSE=1``.
+In this case, the host specified by ``REMOTE_PDB_HOST`` and the port ``REMOTE_PDB_PORT`` will be used as the address
+to connect to. Be careful: the reverse connection will not work if the host is not reachable from the container,
+which may cause additional errors.
 
 Note about OS X
 ===============
